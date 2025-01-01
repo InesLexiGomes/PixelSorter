@@ -17,7 +17,7 @@ public class PixelSorterShaderScript : MonoBehaviour
         ResetTex();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         ResetTex();
     }
@@ -27,11 +27,14 @@ public class PixelSorterShaderScript : MonoBehaviour
         pixelSorter.SetFloat("DepthThresholdLow", depthThresholdLow);
         pixelSorter.SetFloat("DepthThresholdHigh", depthThresholdHigh);
 
+        pixelSorter.SetInt("Width", Screen.width);
+        pixelSorter.SetInt("Height", Screen.height);
+
         Graphics.Blit(Shader.GetGlobalTexture("_CameraDepthTexture"), cameraDepth);
         pixelSorter.SetTexture(0, "CameraDepth", cameraDepth);
 
-        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMain"), "Result", renderTexture);
-        pixelSorter.Dispatch(pixelSorter.FindKernel("CSMain"), renderTexture.width / 8, source.height / 8, 1);
+        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMask"), "Mask", renderTexture);
+        pixelSorter.Dispatch(pixelSorter.FindKernel("CSMask"), renderTexture.width / 16, renderTexture.height / 16, 1);
 
         Graphics.Blit(renderTexture, destination);
     }

@@ -1,17 +1,29 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel CSMask
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture2D<float4> Result;
-RWTexture2D<float4> CameraDepth;
+RWTexture2D<float1> Mask;
+RWTexture2D<float1> CameraDepth;
 
 // 
 float DepthThresholdLow, DepthThresholdHigh;
+uint Width, Height;
 
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+[numthreads(16,16,1)]
+void CSMask (uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!
-    Result[id.xy] = CameraDepth[id.xy];
+
+    if (id.x >= Width || id.y >= Height)
+        return;
+
+    float2 dimensions = id.xy / float2(Width,Height);
+
+    float depthValue = CameraDepth[id.xy];
+
+    uint mask = (depthValue < DepthThresholdLow || depthValue > DepthThresholdHigh) ? 0 : 1;
+
+    Mask[id.xy] = float1(mask);
 }

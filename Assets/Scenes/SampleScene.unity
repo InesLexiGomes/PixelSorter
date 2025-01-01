@@ -429,8 +429,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pixelSorter: {fileID: 7200000, guid: 907e4028ce62d14419e4e289ede9c343, type: 3}
-  depthThresholdLow: 0
-  depthThresholdHigh: 0
+  depthThresholdLow: 0.119
+  depthThresholdHigh: 0.831
 --- !u!1 &1807518392
 GameObject:
   m_ObjectHideFlags: 0
