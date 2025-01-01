@@ -12,6 +12,11 @@ public class PixelSorterShaderScript : MonoBehaviour
     [Range(0.0f, 1.0f)]
     private float depthThresholdLow, depthThresholdHigh;
 
+    private void Awake()
+    {
+        Application.targetFrameRate = 30;
+    }
+
     private void Start()
     {
         ResetTex();
