@@ -184,7 +184,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 844724a135d0917428224029324f1785, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -429,8 +429,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pixelSorter: {fileID: 7200000, guid: 907e4028ce62d14419e4e289ede9c343, type: 3}
-  depthThresholdLow: 0.119
-  depthThresholdHigh: 0.831
+  depthThresholdLow: 0.04
+  depthThresholdHigh: 0.473
 --- !u!1 &1807518392
 GameObject:
   m_ObjectHideFlags: 0
@@ -491,7 +491,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 844724a135d0917428224029324f1785, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

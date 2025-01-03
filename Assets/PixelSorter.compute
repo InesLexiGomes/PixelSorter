@@ -38,16 +38,29 @@ void SwapPixels(uint2 pixelAID, uint2 pixelBID)
         Result[pixelBID] = temp;
     }
 }
-
-// Bitonic Sort function
-void Sort(uint2 pixelAID)
+void BitonicSort(uint2 id, uint lenght)
 {
-    // Need to determine pixelBID
-    pixelBID = pixelAID;
-    SwapPixels(pixelAID, pixelBID)
+    // for each loop the lenght of the current bitonic sequence is doubled
+    for (uint currentSequenceLenght = 2; currentSequenceLenght <= lenght; currentSequenceLenght *= 2)
+    {
+        // for each pass the comparison distance between elements is halved
+        for (uint comparisonDistance = currentSequenceLenght / 2; comparisonDistance >= 1; comparisonDistance /= 2)
+        {
+            // run for each element
+            for (uint n = 0; n < comparisonDistance; n++)
+            {
+                uint2 comparisonID = uint2 ((id.x + comparisonDistance),id.y);
+
+                if (comparisonID.x > id.x) // Ensure each pair is processed only once
+                {
+                    SwapPixels(id, comparisonID);
+                }
+            }
+        }
+    }
 }
 
-[numthreads(32,32,1)]
+[numthreads(16,16,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= Width || id.y >= Height)
@@ -58,8 +71,5 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     GroupMemoryBarrierWithGroupSync();
 
     uint2 pixelID = id.xy;
-    Sort(pixelID);
+    BitonicSort(pixelID, Width);
 }
-
-
-
