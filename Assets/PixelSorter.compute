@@ -19,30 +19,38 @@ void SetMask (uint3 id)
     Mask[id.xy] = float1(mask);
 }
 
-bool ComparePixels(float4 pixelA, float4 pixelB)
+bool ComparePixels(float2 pixelAID, float2 pixelBID)
 {
+    // Calculate luminance using RGB values
+    float luminanceA = (0.2126 * Result[pixelAID].r + 0.7152 * Result[pixelAID].g + 0.0722 * Result[pixelAID].b);
+    float luminanceB = (0.2126 * Result[pixelBID].r + 0.7152 * Result[pixelBID].g + 0.0722 * Result[pixelBID].b);
 
-    return (0.2126*pixelA.r + 0.7152*pixelA.g + 0.0722*pixelA.b) < (0.2126*pixelB.r + 0.7152*pixelB.g + 0.0722*pixelB.b);
+    return luminanceA < luminanceB && Mask[pixelAID] == 1 && Mask[pixelBID] == 1;
 }
 
-void SwapPixels(float4 pixelA, float4 pixelB)
+void SwapPixels(uint2 pixelAID, uint2 pixelBID)
 {
-    if (ComparePixels(pixelA, pixelB))
+    if (ComparePixels(pixelAID, pixelBID))
     {
-        float4 temp = pixelA;
-        pixelA = pixelB;
-        pixelB = temp;
+        float4 temp = Result[pixelAID];
+        Result[pixelAID] = Result[pixelBID];
+        Result[pixelBID] = temp;
     }
 }
 
-void SimpleSort()
+void SimpleSort(uint2 uv)
 {
+    for (uint h = 0; h < Height; h+2)
+    {
+        uint2 pixelAID = uint2(uv.x, h);
+        uint2 pixelBID = uint2(uv.x, h+1);
 
+        SwapPixels(pixelAID, pixelBID);
+    }
 }
 
 void FlipSort()
 {
-
 }
 
 void SlideSort()
@@ -50,9 +58,9 @@ void SlideSort()
 
 }
 
-void Sort()
+void Sort(uint2 uv)
 {
-    SimpleSort();
+    SimpleSort(uv);
     // n represents the cycle it is currently on
     for (uint n = 0; n<Height/2; n++)
     {
@@ -71,6 +79,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     GroupMemoryBarrierWithGroupSync();
 
-    Sort();
+    uint2 uv = id.xy;
+    Sort(uv);
 }
 
