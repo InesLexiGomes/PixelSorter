@@ -1,25 +1,15 @@
-// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMask
-#pragma kernel CSSort
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
+#pragma kernel CSMain
+
 RWTexture2D<float4> Result;
 RWTexture2D<float1> Mask;
 RWTexture2D<float1> CameraDepth;
 
-// 
 float DepthThresholdLow, DepthThresholdHigh;
 uint Width, Height;
 
-[numthreads(16,16,1)]
-void CSMask (uint3 id : SV_DispatchThreadID)
+void SetMask (uint3 id)
 {
-    // TODO: insert actual code here!
-
-    if (id.x >= Width || id.y >= Height)
-        return;
-
     float2 dimensions = id.xy / float2(Width,Height);
 
     float depthValue = CameraDepth[id.xy];
@@ -29,28 +19,58 @@ void CSMask (uint3 id : SV_DispatchThreadID)
     Mask[id.xy] = float1(mask);
 }
 
-/*void swap(float4 pixelA, float4 pixelB)
+bool ComparePixels(float4 pixelA, float4 pixelB)
 {
-    float4 temp = pixelA;
-    pixelA = pixelB;
-    pixelB = temp;
+
+    return (0.2126*pixelA.r + 0.7152*pixelA.g + 0.0722*pixelA.b) < (0.2126*pixelB.r + 0.7152*pixelB.g + 0.0722*pixelB.b);
 }
 
-bool compare(float4 pixelA, float4 pixelB)
+void SwapPixels(float4 pixelA, float4 pixelB)
 {
-    return pixelA < pixelB;
-}*/
-
-//Sort types will be named after rhymatic schemes for my own convenience 
-//ABBA would mean I'm comparing 1st and last and then the ones in the middle
-
-//ABAB means I'm comparing the 1st and 3rd and then 2nd to 4th and so on
-
-[numthreads(16,16,1)]
-void CSSort (uint3 id : SV_DispatchThreadID)
-{
-    for (uint i = 0; i<Height; i++)
+    if (ComparePixels(pixelA, pixelB))
     {
-        Result[id.xy] = (depthValue < DepthThresholdLow || depthValue > DepthThresholdHigh) ? Result[id.xy] : float4(0,0,0,1);
+        float4 temp = pixelA;
+        pixelA = pixelB;
+        pixelB = temp;
     }
 }
+
+void SimpleSort()
+{
+
+}
+
+void FlipSort()
+{
+
+}
+
+void SlideSort()
+{
+
+}
+
+void Sort()
+{
+    SimpleSort();
+    // n represents the cycle it is currently on
+    for (uint n = 0; n<Height/2; n++)
+    {
+        FlipSort();
+        SlideSort();
+    }
+}
+
+[numthreads(16,16,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= Width || id.y >= Height)
+        return;
+
+    SetMask(id);
+
+    GroupMemoryBarrierWithGroupSync();
+
+    Sort();
+}
+

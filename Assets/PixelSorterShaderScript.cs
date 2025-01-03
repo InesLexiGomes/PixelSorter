@@ -36,14 +36,13 @@ public class PixelSorterShaderScript : MonoBehaviour
         pixelSorter.SetInt("Width", Screen.width);
         pixelSorter.SetInt("Height", Screen.height);
 
+        Graphics.Blit(source, renderTexture);
         Graphics.Blit(Shader.GetGlobalTexture("_CameraDepthTexture"), cameraDepth);
-        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMask"), "CameraDepth", cameraDepth);
-        pixelSorter.SetTexture(pixelSorter.FindKernel("CSSort"), "CameraDepth", cameraDepth);
-        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMask"), "Mask", mask);
-        pixelSorter.SetTexture(pixelSorter.FindKernel("CSSort"), "Mask", mask);
-        pixelSorter.SetTexture(pixelSorter.FindKernel("CSSort"), "Result", renderTexture);
+        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMain"), "Result", renderTexture);
+        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMain"), "CameraDepth", cameraDepth);
+        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMain"), "Mask", mask);
 
-        pixelSorter.Dispatch(pixelSorter.FindKernel("CSMask"), renderTexture.width / 16, renderTexture.height / 16, 1);
+        pixelSorter.Dispatch(pixelSorter.FindKernel("CSMain"), renderTexture.width / 16, renderTexture.height / 16, 1);
 
         Graphics.Blit(renderTexture, destination);
     }
