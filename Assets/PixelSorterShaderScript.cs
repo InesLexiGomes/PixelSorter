@@ -6,6 +6,7 @@ public class PixelSorterShaderScript : MonoBehaviour
     
     private RenderTexture renderTexture;
     private RenderTexture cameraDepth;
+    private RenderTexture mask;
 
     // The mask will be contained between these two parameters
     [SerializeField]
@@ -36,9 +37,12 @@ public class PixelSorterShaderScript : MonoBehaviour
         pixelSorter.SetInt("Height", Screen.height);
 
         Graphics.Blit(Shader.GetGlobalTexture("_CameraDepthTexture"), cameraDepth);
-        pixelSorter.SetTexture(0, "CameraDepth", cameraDepth);
+        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMask"), "CameraDepth", cameraDepth);
+        pixelSorter.SetTexture(pixelSorter.FindKernel("CSSort"), "CameraDepth", cameraDepth);
+        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMask"), "Mask", mask);
+        pixelSorter.SetTexture(pixelSorter.FindKernel("CSSort"), "Mask", mask);
+        pixelSorter.SetTexture(pixelSorter.FindKernel("CSSort"), "Result", renderTexture);
 
-        pixelSorter.SetTexture(pixelSorter.FindKernel("CSMask"), "Mask", renderTexture);
         pixelSorter.Dispatch(pixelSorter.FindKernel("CSMask"), renderTexture.width / 16, renderTexture.height / 16, 1);
 
         Graphics.Blit(renderTexture, destination);
@@ -53,5 +57,9 @@ public class PixelSorterShaderScript : MonoBehaviour
         cameraDepth = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
         cameraDepth.enableRandomWrite = true;
         cameraDepth.Create();
+
+        mask = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
+        mask.enableRandomWrite = true;
+        mask.Create();
     }
 }

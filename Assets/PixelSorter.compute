@@ -1,5 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMask
+#pragma kernel CSSort
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -26,4 +27,30 @@ void CSMask (uint3 id : SV_DispatchThreadID)
     uint mask = (depthValue < DepthThresholdLow || depthValue > DepthThresholdHigh) ? 0 : 1;
 
     Mask[id.xy] = float1(mask);
+}
+
+/*void swap(float4 pixelA, float4 pixelB)
+{
+    float4 temp = pixelA;
+    pixelA = pixelB;
+    pixelB = temp;
+}
+
+bool compare(float4 pixelA, float4 pixelB)
+{
+    return pixelA < pixelB;
+}*/
+
+//Sort types will be named after rhymatic schemes for my own convenience 
+//ABBA would mean I'm comparing 1st and last and then the ones in the middle
+
+//ABAB means I'm comparing the 1st and 3rd and then 2nd to 4th and so on
+
+[numthreads(16,16,1)]
+void CSSort (uint3 id : SV_DispatchThreadID)
+{
+    for (uint i = 0; i<Height; i++)
+    {
+        Result[id.xy] = (depthValue < DepthThresholdLow || depthValue > DepthThresholdHigh) ? Result[id.xy] : float4(0,0,0,1);
+    }
 }
